@@ -135,7 +135,7 @@ func init() { // 插件主体
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
 				false,
 			).Get("nickname").Str
-			ctx.SendChain(message.Text("残念~ " + nickname + " 被放逐"))
+			ctx.SendChain(message.Text("+ nickname + " 被送去与太阳肩并肩"))
 		})
 	// 退出群聊
 	engine.OnRegex(`^退出群聊.*?(\d+)`, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
@@ -411,7 +411,7 @@ func init() { // 插件主体
 				if err == nil {
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
-					ctx.SendChain(message.Text("欢迎~"))
+					ctx.SendChain(message.Text("呀!是新的面孔欸!欢迎入群~"))
 				}
 				c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 				if ok {
