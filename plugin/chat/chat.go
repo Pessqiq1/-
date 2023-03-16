@@ -24,6 +24,7 @@ var (
 
 func init() { // 插件主体
 	// 被喊名字
+	// 被喊名字
 	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
 			var nickname = zero.BotConfig.NickName[0]
@@ -45,11 +46,33 @@ func init() { // 插件主体
 			case poke.Load(ctx.Event.GroupID).AcquireN(3):
 				// 5分钟共8块命令牌 一次消耗3块命令牌
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Text("请不要戳", nickname, " >_<"))
+				ctx.SendChain(message.Text(
+					[]string{
+						nickname + "在此，有何贵干~",
+					"不…不要乱戳啦!",
+					"你再戳我不理你了!!!",
+					"戳戳别人,别再戳我了啦…",
+					"呜…每天都被好多人戳…!",
+					"呜…那里真的不要戳…",
+					"戳脸可以,但是你不要戳那里…",
+					"哪天我的脸就会被你们戳出一个坑(生气)",
+					"我是椛椛,每天都被hentai群友戳傻",
+					"轻点戳嘛…",
+					}[rand.Intn(24)],
+				))
+
 			case poke.Load(ctx.Event.GroupID).Acquire():
 				// 5分钟共8块命令牌 一次消耗1块命令牌
 				time.Sleep(time.Second * 1)
-				ctx.SendChain(message.Text("喂(#`O′) 戳", nickname, "干嘛！"))
+				ctx.SendChain(message.Text(
+					[]string{
+						"啊啊啊要坏掉啦啊啊啊<",
+						"喂(#`O′) 戳" + nickname + "干嘛!",
+						"呜…别戳了…",
+					}[rand.Intn(25)],
+				))
+
+				ctx.Send(message.Poke(ctx.Event.UserID))
 			default:
 				// 频繁触发，不回复
 			}
