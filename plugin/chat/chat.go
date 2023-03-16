@@ -31,10 +31,7 @@ func init() { // 插件主体
 			time.Sleep(time.Second * 1)
 			ctx.SendChain(message.Text(
 				[]string{
-					nickname + "在此，有何贵干~",
-					"(っ●ω●)っ在~",
-					"这里是" + nickname + "(っ●ω●)っ",
-					nickname + "不在呢~",
+					"我是椛椛,每天都被"+(ctx.Event.UserID)"群友戳傻",
 				}[rand.Intn(4)],
 			))
 		})
@@ -48,16 +45,7 @@ func init() { // 插件主体
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(message.Text(
 					[]string{
-						nickname + "在此，有何贵干~",
-					"不…不要乱戳啦!",
-					"你再戳我不理你了!!!",
-					"戳戳别人,别再戳我了啦…",
-					"呜…每天都被好多人戳…!",
-					"呜…那里真的不要戳…",
-					"戳脸可以,但是你不要戳那里…",
-					"哪天我的脸就会被你们戳出一个坑(生气)",
-					"我是椛椛,每天都被hentai群友戳傻",
-					"轻点戳嘛…",
+					"我是椛椛,每天都被"+(ctx.Event.UserID)"群友戳傻",
 					}[rand.Intn(24)],
 				))
 
