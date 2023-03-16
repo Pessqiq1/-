@@ -411,7 +411,7 @@ func init() { // 插件主体
 				if err == nil {
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
-					ctx.SendChain(message.Text("呀!是新的面孔欸!欢迎入群~"))
+					ctx.SendChain(message.Text("呀！是新的面孔欸！欢迎入群~"))
 				}
 				c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 				if ok {
