@@ -135,7 +135,7 @@ func init() { // 插件主体
 				math.Str2Int64(ctx.State["regex_matched"].([]string)[1]), // 被踢出群聊的人的qq
 				false,
 			).Get("nickname").Str
-			ctx.SendChain(message.Text("+ nickname + " 被送去与太阳肩并肩"))
+			ctx.SendChain(message.Text("残念~ " + nickname + " 被放逐"))
 		})
 	// 退出群聊
 	engine.OnRegex(`^退出群聊.*?(\d+)`, zero.OnlyToMe, zero.SuperUserPermission).SetBlock(true).
@@ -198,26 +198,34 @@ func init() { // 插件主体
 			ctx.SendChain(message.Text("小黑屋释放成功~"))
 		})
 	// 自闭禁言
-	engine.OnRegex(`^(我要自闭|禅定).*?(\d+)(.*)`, zero.OnlyGroup).SetBlock(true).
+	engine.OnRegex(`^(我要自闭|禅定).*?([\d|\.]+)(.*)`, zero.OnlyGroup).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			duration := math.Str2Int64(ctx.State["regex_matched"].([]string)[2])
-			switch ctx.State["regex_matched"].([]string)[3] {
-			case "分钟", "min", "mins", "m":
-				break
-			case "小时", "hour", "hours", "h":
-				duration *= 60
-			case "天", "day", "days", "d":
-				duration *= 60 * 24
-			default:
-				break
+			duration, err := strconv.ParseFloat(ctx.State["regex_matched"].([]string)[2], 64)
+			if err != nil {
+				return
 			}
-			if duration >= 43200 {
-				duration = 43199 // qq禁言最大时长为一个月
+			switch ctx.State["regex_matched"].([]string)[3] {
+			case "秒", "second", "seconds", "s":
+				break
+			case "分钟", "min", "mins", "m":
+				duration *= 60
+			case "小时", "hour", "hours", "h":
+				duration *= 60 * 60
+			case "天", "day", "days", "d":
+				duration *= 60 * 60 * 24
+			default:
+				duration *= 60
+			}
+			if int64(duration) == 0 {
+				return
+			}
+			if duration >= 2592000 {
+				duration = 2591999 // qq禁言最大时长为一个月
 			}
 			ctx.SetGroupBan(
 				ctx.Event.GroupID,
 				ctx.Event.UserID,
-				duration*60, // 要自闭的时间（分钟）
+				int64(duration), // 要自闭的时间（分钟）
 			)
 			ctx.SendChain(message.Text("那我就不手下留情了~"))
 		})
@@ -411,7 +419,7 @@ func init() { // 插件主体
 				if err == nil {
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
-					ctx.SendChain(message.Text("呀！是新的面孔欸！欢迎入群~"))
+					ctx.SendChain(message.Text("欢迎~"))
 				}
 				c, ok := ctx.State["manager"].(*ctrl.Control[*zero.Ctx])
 				if ok {
@@ -464,18 +472,16 @@ func init() { // 插件主体
 					ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 				} else {
 					userid := ctx.Event.UserID
-					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+					ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "退出了群聊..."))
 				}
 			}
 		})
 	// 设置欢迎语
 	engine.OnRegex(`^设置欢迎语([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			welcomestring := ctx.State["regex_matched"].([]string)[1]
-			welcomestring = message.UnescapeCQCodeText(welcomestring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   welcomestring,
+				Msg:   ctx.State["regex_matched"].([]string)[1],
 			}
 			err := db.Insert("welcome", w)
 			if err == nil {
@@ -498,11 +504,9 @@ func init() { // 插件主体
 	// 设置告别辞
 	engine.OnRegex(`^设置告别辞([\s\S]*)$`, zero.OnlyGroup, zero.AdminPermission).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			farewellstring := ctx.State["regex_matched"].([]string)[1]
-			farewellstring = message.UnescapeCQCodeText(farewellstring)
 			w := &welcome{
 				GrpID: ctx.Event.GroupID,
-				Msg:   farewellstring,
+				Msg:   ctx.State["regex_matched"].([]string)[1],
 			}
 			err := db.Insert("farewell", w)
 			if err == nil {
@@ -520,7 +524,7 @@ func init() { // 插件主体
 				ctx.SendGroupMessage(ctx.Event.GroupID, message.ParseMessageFromString(welcometocq(ctx, w.Msg)))
 			} else {
 				userid := ctx.Event.UserID
-				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "离开了我们..."))
+				ctx.SendChain(message.Text(ctx.CardOrNickName(userid), "(", userid, ")", "退出了群聊..."))
 			}
 		})
 	// 入群后验证开关
@@ -670,17 +674,17 @@ func init() { // 插件主体
 
 // 传入 ctx 和 welcome格式string 返回cq格式string  使用方法:welcometocq(ctx,w.Msg)
 func welcometocq(ctx *zero.Ctx, welcome string) string {
-	uid := strconv.FormatInt(ctx.Event.UserID, 10)                                  // 用户id
-	nickname := ctx.CardOrNickName(ctx.Event.UserID)                                // 用户昵称
-	at := "[CQ:at,qq=" + uid + "]"                                                  // at用户
-	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640]" // 用户头像
-	gid := strconv.FormatInt(ctx.Event.GroupID, 10)                                 // 群id
-	groupname := ctx.GetGroupInfo(ctx.Event.GroupID, true).Name                     // 群名
+	uid := strconv.FormatInt(ctx.Event.UserID, 10)                                          // 用户id
+	nickname := ctx.CardOrNickName(ctx.Event.UserID)                                        // 用户昵称
+	at := "[CQ:at,qq=" + uid + "]"                                                          // at用户
+	avatar := "[CQ:image,file=" + "http://q4.qlogo.cn/g?b=qq&nk=" + uid + "&s=640,cache=0]" // 用户头像
+	gid := strconv.FormatInt(ctx.Event.GroupID, 10)                                         // 群id
+	groupname := ctx.GetGroupInfo(ctx.Event.GroupID, true).Name                             // 群名
 	cqstring := strings.ReplaceAll(welcome, "{at}", at)
 	cqstring = strings.ReplaceAll(cqstring, "{nickname}", nickname)
 	cqstring = strings.ReplaceAll(cqstring, "{avatar}", avatar)
 	cqstring = strings.ReplaceAll(cqstring, "{uid}", uid)
 	cqstring = strings.ReplaceAll(cqstring, "{gid}", gid)
 	cqstring = strings.ReplaceAll(cqstring, "{groupname}", groupname)
-	return cqstring
+	return message.UnescapeCQCodeText(cqstring)
 }
