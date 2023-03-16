@@ -45,7 +45,7 @@ func init() { // 插件主体
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(message.Text(
 					[]string{
-					"我是椛椛,每天都被"+(ctx.Event.UserID)"群友戳傻",
+					"我是椛椛,每天都被"+(ctx.Event.UserID)+"群友戳傻",
 					}[rand.Intn(24)],
 				))
 
