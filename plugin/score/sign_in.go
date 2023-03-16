@@ -97,7 +97,7 @@ func init() {
 			level := sdb.GetScoreByUID(uid).Score + 1
 			if level > SCOREMAX {
 				level = SCOREMAX
-				ctx.SendChain(message.At(uid), message.Text("你的等级已经达到上限"))
+				ctx.SendChain(message.At(uid), message.Text("您已经满级了呢~"))
 			}
 			err = sdb.InsertOrUpdateScoreByUID(uid, level)
 			if err != nil {
@@ -202,9 +202,9 @@ func init() {
 				ctx.SendChain(message.Text("ERROR: ", err))
 				return
 			}
-			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+banner.Version, float64(imgDX)/2, float64(imgDY)-20, 0.5, 0.5) // zbp
+			canvas.DrawStringAnchored("Created By Pessqiq-2023 "+banner.Version, float64(imgDX)/2, float64(imgDY)-20, 0.5, 0.5) // zbp
 			canvas.SetRGB255(0, 0, 0)
-			canvas.DrawStringAnchored("Created By Zerobot-Plugin "+banner.Version, float64(imgDX)/2-3, float64(imgDY)-19, 0.5, 0.5) // zbp
+			canvas.DrawStringAnchored("Created By Pessqiq-2023 "+banner.Version, float64(imgDX)/2-3, float64(imgDY)-19, 0.5, 0.5) // zbp
 			canvas.SetRGB255(255, 255, 255)
 			// Gradient
 			grad := gg.NewLinearGradient(20, 320, 400, 20)
