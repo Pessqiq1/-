@@ -27,25 +27,31 @@ func init() { // 插件主体
 	// 被喊名字
 	engine.OnFullMatch("", zero.OnlyToMe).SetBlock(true).
 		Handle(func(ctx *zero.Ctx) {
-			var nickname = zero.BotConfig.NickName[0]
+			var(
+				nickname = zero.BotConfig.NickName[0]
+			nick123=ctx.Event.UserID
+				)
 			time.Sleep(time.Second * 1)
 			ctx.SendChain(message.Text(
 				[]string{
-					"我是椛椛,每天都被"+ctx.Event.UserID+"群友戳傻",
+					"我是椛椛,每天都被"+nick123+"群友戳傻",
 				}[rand.Intn(4)],
 			))
 		})
 	// 戳一戳
 	engine.On("notice/notify/poke", zero.OnlyToMe).SetBlock(false).
 		Handle(func(ctx *zero.Ctx) {
-			var nickname = zero.BotConfig.NickName[0]
+			var(
+				nickname = zero.BotConfig.NickName[0]
+			nick123=ctx.Event.UserID
+				)
 			switch {
 			case poke.Load(ctx.Event.GroupID).AcquireN(3):
 				// 5分钟共8块命令牌 一次消耗3块命令牌
 				time.Sleep(time.Second * 1)
 				ctx.SendChain(message.Text(
 					[]string{
-					"我是椛椛,每天都被"+ctx.Event.UserID+"群友戳傻",
+						"我是椛椛,每天都被"+nick123+"群友戳傻",
 					}[rand.Intn(24)],
 				))
 
