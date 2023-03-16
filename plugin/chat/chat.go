@@ -29,10 +29,9 @@ func init() { // 插件主体
 		Handle(func(ctx *zero.Ctx) {
 			var nickname = zero.BotConfig.NickName[0]
 			time.Sleep(time.Second * 1)
-			.Get("nick123").Str
 			ctx.SendChain(message.Text(
 				[]string{
-					"我是椛椛,每天都被"+nick123+"群友戳傻",
+					"我是椛椛,每天都被"+ctx.CardOrNickName()+"群友戳傻",
 				}[rand.Intn(4)],
 			))
 		})
